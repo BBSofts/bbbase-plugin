@@ -7,7 +7,7 @@
 Claude Code 에서:
 
 ```
-/plugin marketplace add BBSofts/bbbase_plugin
+/plugin marketplace add BBSofts/bbbase-plugin
 /plugin install bbbase-integration@bbbase
 ```
 
