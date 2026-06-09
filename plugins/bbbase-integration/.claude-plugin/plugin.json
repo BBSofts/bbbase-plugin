@@ -1,0 +1,9 @@
+{
+  "name": "bbbase-integration",
+  "version": "0.7.0",
+  "description": "게임에서 BBBase BaaS를 REST로 연동하는 스킬 — 게임유저 게스트 로그인, 유저 데이터 저장/불러오기, 리더보드, 유니크 제약, 리셋잡, 스키마 정의.",
+  "author": {
+    "name": "BBBase"
+  },
+  "keywords": ["bbbase", "baas", "game-backend", "leaderboard", "integration"]
+}
