@@ -66,7 +66,9 @@ public class GameBackend : MonoBehaviour
 | `await BBBase.Records.SaveAsync(type, id, obj)` | 범용 엔티티(guild/season 등) 저장 |
 | `await BBBase.Records.DeleteAsync(type, id)` | 삭제(없어도 성공) |
 | `await BBBase.Leaderboards.GetTopEntriesAsync(lbId, n)` | Top-N(`RankEntry[]`) |
+| `await BBBase.Leaderboards.GetTopEntriesAsync(lbId, n, 0, groupKey)` | 그룹(길드 등) 내 Top-N — `groupByCol` 리더보드 |
 | `await BBBase.Leaderboards.GetRankAsync(lbId, entityId)` | 내 순위(없으면 null) |
+| `await BBBase.Leaderboards.GetRankAsync(lbId, entityId, groupKey)` | 그룹 내 내 순위 |
 
 규칙은 REST 와 **100% 동일**하다 — 헤더 2종, envelope, compareMode 병합(`MIN`/`MAX`/
 `INCREMENT`), userId 는 서버 발급, 본인 레코드 소유권. SDK 가 그걸 코드로 감쌌을 뿐이다.

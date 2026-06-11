@@ -32,7 +32,8 @@ BASE_URL : https://api.bbbase.io
 | columnName | string | ✅ | 집계 기준. 해당 scope 의 **NUMBER 스키마**여야 함 |
 | order | `ASC`\|`DESC` | ✅ | ASC=작을수록 상위(레이스 타임), DESC=클수록 상위(점수) |
 | entityType | string | ❌ | 기본 `user` |
-| segment | object | ❌ | 부분 랭킹 조건. 예: `{ "gender": 0 }`. segment 컬럼도 스키마에 있어야 함 |
+| segment | object | ❌ | 부분 랭킹 조건(고정값). 예: `{ "gender": 0 }`. segment 컬럼도 스키마에 있어야 함 |
+| groupByCol | string | ❌ | 그룹 분할 기준 컬럼명. 예: `"guild_id"`. 조회 시 `?groupKey=값` 으로 그룹 내 랭킹. 컬럼도 스키마에 있어야 함 |
 | resetPolicy | `DAILY`\|`WEEKLY`\|`MONTHLY` | ❌ | 주기 초기화(생략=누적) |
 | includeCols | string[] | ❌ | 랭킹 응답에 함께 노출할 컬럼. 예: `["nickname"]` |
 
@@ -53,6 +54,15 @@ curl -X POST https://api.bbbase.io/projects/{projectId}/leaderboards \
 레코드가 segment 조건을 **모두 만족할 때만** 그 랭킹에 반영된다. 조건을 더는 만족하지
 않게 되면(예: gender 변경) 자동 제외된다.
 
+**그룹 랭킹(길드 내 랭킹 등)** 은 `groupByCol` 로 등록한다. segment 와 달리 값을 박지 않고
+컬럼명만 주므로 **길드가 몇 개든 정의 1개**로 전부 커버한다:
+```bash
+# 길드원 기여도 랭킹 — user 레코드의 guild_id 값별 그룹화 (user 스키마에 contribution, guild_id 필요)
+-d '{ "name": "길드 기여도", "columnName": "contribution", "order": "DESC", "groupByCol": "guild_id" }'
+```
+저장 시 `guild_id` 값이 `groupKey` 로 함께 복사된다. 길드 이동으로 값이 바뀌면 다음 저장 때
+새 그룹에 자동 반영. ⚠️ 한 유저는 리더보드당 **그룹 1개**만(1인 1길드 모델).
+
 ### 목록 / 단건 / 수정 / 삭제
 
 ```bash
@@ -61,7 +71,7 @@ GET    /projects/{projectId}/leaderboards/{id}
 PATCH  /projects/{projectId}/leaderboards/{id}   # name/order/resetPolicy/includeCols 만 수정 가능
 DELETE /projects/{projectId}/leaderboards/{id}   # score 함께 삭제
 ```
-> 정렬 기준 자체(entityType/columnName/segment)는 수정 불가 — 바꾸려면 새로 등록.
+> 정렬 기준 자체(entityType/columnName/segment/groupByCol)는 수정 불가 — 바꾸려면 새로 등록.
 
 에러: columnName 이 없거나 NUMBER 아님 → `INVALID_LEADERBOARD_COLUMN` /
 동일 (entityType, columnName, order, segment) 중복 등록 → `LEADERBOARD_DUPLICATE`.
@@ -73,11 +83,13 @@ DELETE /projects/{projectId}/leaderboards/{id}   # score 함께 삭제
 ### Top-N — `GET .../leaderboards/{leaderboardId}/ranks?limit=&offset=`
 
 `limit` 기본 50/최대 100, `offset` 기본 0. 정렬방향·노출컬럼은 정의에 귀속되므로
-쿼리로 안 보낸다.
+쿼리로 안 보낸다. `groupByCol` 리더보드면 `?groupKey={값}` 추가 → 그 그룹(예: 길드) 내 랭킹.
+생략 시 전체 합산.
 
 ```bash
 curl "https://api.bbbase.io/projects/{projectId}/leaderboards/{leaderboardId}/ranks?limit=50&offset=0" \
   -H "X-API-Key: {API_KEY}"
+# 길드 내 랭킹: ...?limit=50&groupKey=guild_abc
 ```
 ```json
 { "success": true, "data": {
@@ -93,7 +105,8 @@ curl "https://api.bbbase.io/projects/{projectId}/leaderboards/{leaderboardId}/ra
   "rank": 4, "entityId": "u1", "score": 50, "total": 5, "percentile": 80, "nickname": "Alice" } }
 ```
 동점은 먼저 도달한 쪽이 상위(updatedAt tie-break). 점수 없는 엔티티 →
-`LEADERBOARD_SCORE_NOT_FOUND`.
+`LEADERBOARD_SCORE_NOT_FOUND`. `groupByCol` 리더보드는 `?groupKey={값}` 으로 그룹 내 순위를
+구하고, 생략 시 그 유저가 속한 그룹 기준으로 계산(응답에 `groupKey` 포함).
 
 ## 3. 점수 갱신은 자동
 
