@@ -108,6 +108,33 @@ curl -X PUT https://api.bbbase.io/projects/{projectId}/entities/guild/guild_001/
   -d '{ "data": { "total_score": 3000 } }'
 ```
 
+### 생성 vs 갱신 — 별도 "생성 API" 없음 (PUT 이 upsert)
+
+저장(PUT)이 곧 upsert다. **그 `entityId` 의 레코드가 없으면 = 생성, 있으면 = compareMode 병합(갱신).**
+생성 시 **스키마 `defaultValue` 가 먼저 채워지고** 보낸 필드만 그 위에 덮인다 → "기본값으로
+채워진 새 레코드"가 만들어진다(예: 인게임 "길드 만들기").
+
+**생성 시 entityId 는 호출자가 만든다.** `user` 는 로그인이 `userId` 를 발급하지만 길드·시즌
+등은 로그인이 없다. **반드시 UUID 로 생성**하라 — 랜덤 UUID(v4)면 충돌이 사실상 없다. 짧은/
+비랜덤 ID 는 충돌 시 에러가 아니라 **다른 레코드에 조용히 병합**되므로 금지. 같은 *이름* 중복을
+막고 싶으면 그 컬럼(예: `guild.name`)에 유니크 제약을 건다(`unique-constraints.md`).
+
+```bash
+# ① 생성 — 새 guildId(UUID)로 PUT. name 외 컬럼은 defaultValue 로 자동 채워짐
+curl -X PUT https://api.bbbase.io/projects/{projectId}/entities/guild/550e8400-e29b-41d4-a716-446655440000/record \
+  -H "Content-Type: application/json" -H "X-API-Key: {API_KEY}" -H "Authorization: Bearer {accessToken}" \
+  -d '{ "data": { "name": "불사조 길드" } }'
+
+# ② 갱신 — 같은 guildId 로 다시 PUT. compareMode 적용(total_score MAX 는 더 클 때만)
+curl -X PUT https://api.bbbase.io/projects/{projectId}/entities/guild/550e8400-e29b-41d4-a716-446655440000/record \
+  -H "Content-Type: application/json" -H "X-API-Key: {API_KEY}" -H "Authorization: Bearer {accessToken}" \
+  -d '{ "data": { "total_score": 99000 } }'
+```
+
+> SDK(`Assets/BBBase`)가 있으면 위를 `BBBase.Records.SaveAsync("guild", guildId, new {...})` 로
+> 호출한다(생성/갱신 동일 메서드). 생성 시 `guildId = System.Guid.NewGuid().ToString()`. 자세한 건
+> `unity-sdk.md`.
+
 운영자용 레코드 목록(JWT, 커서 페이지네이션):
 ```bash
 GET /projects/{projectId}/entities/{entityType}/records?limit=&cursor=&entityId=
