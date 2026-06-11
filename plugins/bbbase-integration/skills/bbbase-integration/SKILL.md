@@ -29,9 +29,10 @@ BBBase는 게임 개발자용 자체 호스팅 BaaS다. 게임은 **REST 호출*
 
 호출에는 **BASE_URL**, **PROJECT_ID**, **API_KEY** 가 필요하다. 셋의 성격이 다르다:
 
-- **BASE_URL = `https://api.bbbase.io`** — 이게 기본값이다(prod API). **거의 모든 게임이 이 값을
-  그대로 쓴다.** 개발자가 다른 주소를 명시적으로 주지 않는 한 이 기본값을 사용하라 — 물어보거나
-  비워두지 말 것. (대시보드는 `https://bbbase.io`, API 는 `https://api.bbbase.io`.)
+- **BASE_URL** — 먼저 `BBBase_Keys.md` 나 게임 설정에 BASE_URL 이 있으면 **그 값을 쓴다**(예:
+  개발 단계엔 dev 서버 주소). 없으면 **기본값 `https://api.bbbase.io`(prod)** 를 쓴다 — 이 경우
+  물어보지 말고 기본값을 적용하라. (SDK 를 쓰면 BASE_URL 은 `BBBaseSettings` 에셋에 있으니
+  코드/가이드에서 신경 쓸 필요가 없다 — dev↔prod 는 그 에셋의 `Base Url` 만 바꾼다.)
 - **PROJECT_ID · API_KEY** — 프로젝트마다 다른 값. 프로젝트 루트의 `BBBase_Keys.md` 나 게임
   환경설정에서 읽고, 없으면 **개발자에게 직접 물어본다**(추측·공란 금지).
 - 아직 BBBase 프로젝트 자체가 없다면(=계정/프로젝트/키 발급 전) → `references/setup.md` 를 읽고
