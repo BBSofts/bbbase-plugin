@@ -6,16 +6,24 @@ description: >-
   스키마 정의, 감사로그, 게임 플레이어 로그인/인증(게스트 로그인)을
   BBBase API로 구현할 때 사용한다. "점수를 서버에 저장", "랭킹 붙여줘", "유저 데이터
   클라우드 저장/동기화", "닉네임 중복 검사", "베스트타임 리더보드",
-  "게스트 로그인", "BBBase", "백엔드 연동" 같은 요청이 나오면 추측으로 엔드포인트를
-  만들지 말고 반드시 이 스킬을 먼저 참고할 것. 인증 헤더 종류, 응답 envelope,
-  에러코드, compareMode 병합 규칙이 모두 고정 규약이라 잘못 추측하면 동작하지 않는다.
+  "게스트 로그인", "BBBase", "백엔드 연동", "BBBase Unity SDK" 같은 요청이 나오면 추측으로
+  엔드포인트를 만들지 말고 반드시 이 스킬을 먼저 참고할 것. Unity 프로젝트에 BBBase SDK
+  (`Assets/BBBase`/`using BBBaseSdk`)가 설치돼 있으면 REST 대신 SDK API 로 연동한다.
+  인증 헤더 종류, 응답 envelope, 에러코드, compareMode 병합 규칙이 모두 고정 규약이라
+  잘못 추측하면 동작하지 않는다.
 ---
 
 # BBBase 연동
 
-BBBase는 게임 개발자용 자체 호스팅 BaaS다. 게임은 **REST 호출**로만 연동한다 — SDK
-설치 없이 `fetch`/`UnityWebRequest`/`HttpClient` 등으로 직접 호출하면 된다. 이
-스킬은 그 호출 규약을 담는다.
+BBBase는 게임 개발자용 자체 호스팅 BaaS다. 게임은 **REST 호출**로 연동한다 —
+`fetch`/`UnityWebRequest`/`HttpClient` 등으로 직접 호출하면 된다. 이 스킬은 그 호출
+규약을 담는다.
+
+> **⚡ Unity 게임이면 공식 SDK 를 먼저 확인하라.** 프로젝트에 `Assets/BBBase/`(또는
+> 코드에 `using BBBaseSdk;` / `BBBase.Init()`)가 보이면 **BBBase Unity SDK 가 설치된 것**이다.
+> 그땐 `UnityWebRequest` 코드를 손수 짜지 말고 **SDK API 를 쓰고 `references/unity-sdk.md`
+> 를 읽어라**(SDK 가 헤더·envelope·세션을 대신 처리). SDK 가 없거나 고객이 REST 를
+> 원하면 아래 REST 규약대로 진행한다. 어느 쪽이든 인증·envelope·compareMode 규약은 동일하다.
 
 BBBase 는 두 서버를 운영한다 — **dev**와 **prod**(코드·DB가 분리됨):
 
@@ -146,6 +154,7 @@ curl -X PUT https://api.bbbase.io/projects/{PROJECT_ID}/entities/user/{userId}/r
 
 | 하려는 것 | 읽을 파일 |
 |---|---|
+| **Unity 게임 + SDK 설치됨**(`Assets/BBBase/`) → SDK 로 연동 | `references/unity-sdk.md` |
 | 최초 셋업(계정·프로젝트·API키 발급), 운영자 로그인/토큰 갱신 | `references/setup.md` |
 | 게임 플레이어 게스트 로그인, 게임유저 토큰 발급·첨부·refresh, 본인 레코드 소유권 | `references/game-auth.md` |
 | 컬럼(스키마) 정의·수정, 유저 외 엔티티(길드/그룹/시즌) 레코드 | `references/records.md` |
