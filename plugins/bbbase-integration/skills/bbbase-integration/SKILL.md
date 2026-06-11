@@ -25,32 +25,20 @@ BBBase는 게임 개발자용 자체 호스팅 BaaS다. 게임은 **REST 호출*
 > 를 읽어라**(SDK 가 헤더·envelope·세션을 대신 처리). SDK 가 없거나 고객이 REST 를
 > 원하면 아래 REST 규약대로 진행한다. 어느 쪽이든 인증·envelope·compareMode 규약은 동일하다.
 
-BBBase 는 두 서버를 운영한다 — **dev**와 **prod**(코드·DB가 분리됨):
-
-```
-prod : https://api.bbbase.io      (대시보드: https://bbbase.io, HTTPS/TLS)
-dev  : http://178.105.162.85:4001  (도메인/TLS 미적용)
-```
-
-> prod 는 도메인+HTTPS 로 전환됐다(`https://api.bbbase.io`). 구 `http://178.105.162.85:4000`
-> 직접 포트는 **닫혔다** — 더는 동작하지 않으니 prod 는 항상 `https://api.bbbase.io` 를 쓴다.
-
-> ⚠️ **BASE_URL 을 박지 말고 게임 설정에서 확인하라.** 게임이 어느 서버에 붙느냐가
-> 곧 BASE_URL 이다 — 게임의 환경설정/`BBBase_Keys.md` 에 적힌 값을 쓰고, 불명확하면
-> 개발자에게 묻는다. (이 스킬·레퍼런스의 예제는 편의상 한쪽 포트로 적혀 있을 수 있으니,
-> 실제 호출 땐 확인한 BASE_URL 로 바꿔라.) dev/prod 는 데이터가 분리돼 있어 서버를
-> 잘못 고르면 "내 레코드가 없다"처럼 보인다.
-
 ## 0. 먼저 자격증명 확보
 
-거의 모든 호출에 **BASE_URL**, **PROJECT_ID**, **API_KEY** 가 필요하다.
+호출에는 **BASE_URL**, **PROJECT_ID**, **API_KEY** 가 필요하다. 셋의 성격이 다르다:
 
-1. 프로젝트 루트에 `BBBase_Keys.md` 나 게임 환경설정이 있으면 거기서 `BASE_URL`(붙는
-   서버), `Project ID`, `API Key` 를 읽는다.
-2. 없으면 **개발자에게 직접 물어본다.** 추측하거나 비워두지 말 것.
-3. 아직 BBBase 프로젝트 자체가 없다면(=계정/프로젝트/키 발급 전) → `references/setup.md`
-   를 읽고 최초 셋업부터 진행한다. 발급받은 키는 반드시 `BBBase_Keys.md` 에 적고
-   `.gitignore` 에 추가한다(절대 커밋 금지).
+- **BASE_URL = `https://api.bbbase.io`** — 이게 기본값이다(prod API). **거의 모든 게임이 이 값을
+  그대로 쓴다.** 개발자가 다른 주소를 명시적으로 주지 않는 한 이 기본값을 사용하라 — 물어보거나
+  비워두지 말 것. (대시보드는 `https://bbbase.io`, API 는 `https://api.bbbase.io`.)
+- **PROJECT_ID · API_KEY** — 프로젝트마다 다른 값. 프로젝트 루트의 `BBBase_Keys.md` 나 게임
+  환경설정에서 읽고, 없으면 **개발자에게 직접 물어본다**(추측·공란 금지).
+- 아직 BBBase 프로젝트 자체가 없다면(=계정/프로젝트/키 발급 전) → `references/setup.md` 를 읽고
+  최초 셋업부터 진행한다. 발급받은 키는 `BBBase_Keys.md` 에 적고 `.gitignore` 에 추가(커밋 금지).
+
+> ℹ️ BBBase 는 BBSofts 내부 테스트용 dev 서버(`http://178.105.162.85:4001`, DB 분리)도 운영하지만,
+> 고객 게임은 prod(`https://api.bbbase.io`)를 쓴다. 개발자가 dev 주소를 명시한 경우에만 그걸 쓴다.
 
 > ⚠️ API_KEY 는 게임 클라이언트에 임베드되는 **공개 취급** 키지만, 그래도 소스
 > 형상관리에는 커밋하지 않는다(키 로테이션을 쉽게 하기 위해).
