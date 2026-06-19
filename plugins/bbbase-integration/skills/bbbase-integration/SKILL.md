@@ -2,11 +2,12 @@
 name: bbbase-integration
 description: >-
   BBBase(자체 호스팅 게임 BaaS) REST API 연동 스킬. 게임 클라이언트/서버에서 유저
-  데이터 저장·불러오기, 리더보드/랭킹, 닉네임·길드명 중복 방지, 일일/주간 리셋,
+  데이터 저장·불러오기, 리더보드/랭킹, 리그(티어 승격/강등), 닉네임·길드명 중복 방지, 일일/주간 리셋,
   스키마 정의, 감사로그, 게임 플레이어 로그인/인증(게스트 로그인)을
   BBBase API로 구현할 때 사용한다. "점수를 서버에 저장", "랭킹 붙여줘", "유저 데이터
   클라우드 저장/동기화", "닉네임 중복 검사", "베스트타임 리더보드",
-  "게스트 로그인", "BBBase", "백엔드 연동", "BBBase Unity SDK", "BBBase Godot SDK" 같은 요청이
+  "게스트 로그인", "리그", "티어 승격 강등", "브론즈 실버 골드 리그",
+  "BBBase", "백엔드 연동", "BBBase Unity SDK", "BBBase Godot SDK" 같은 요청이
   나오면 추측으로 엔드포인트를 만들지 말고 반드시 이 스킬을 먼저 참고할 것. Unity 프로젝트에
   BBBase SDK(`Assets/BBBase`/`using BBBaseSdk`)나 Godot 프로젝트에 BBBase SDK
   (`addons/bbbase`/autoload `BBBase`)가 설치돼 있으면 REST 대신 SDK API 로 연동한다.
@@ -153,6 +154,7 @@ curl -X PUT https://api.bbbase.io/projects/{PROJECT_ID}/entities/user/{userId}/r
 | 게임 플레이어 게스트 로그인, 게임유저 토큰 발급·첨부·refresh, 본인 레코드 소유권 | `references/game-auth.md` |
 | 컬럼(스키마) 정의·수정, 유저 외 엔티티(길드/그룹/시즌) 레코드 | `references/records.md` |
 | 리더보드 등록 + top-N/내 순위 조회 | `references/leaderboard.md` |
+| 리그(티어 승격/강등) 등록 + 내 현황/그룹 랭킹 조회 | `references/league.md` |
 | 닉네임·길드명 등 중복 금지 | `references/unique-constraints.md` |
 | 주기적 리셋(일/주/월), 변경 이력(감사로그) 조회 | `references/reset-and-audit.md` |
 
