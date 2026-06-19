@@ -66,6 +66,12 @@ func _ready() -> void:
 | `await BBBase.leaderboards.get_top_entries(lb_id, n, 0, group_key)` | 그룹(길드 등) 내 Top-N — `groupByCol` 리더보드 |
 | `await BBBase.leaderboards.get_rank(lb_id, entity_id)` | 내 순위(없으면 data=null) |
 | `await BBBase.leaderboards.get_rank(lb_id, entity_id, group_key)` | 그룹 내 내 순위 |
+| `await BBBase.leagues.get_my_status_mine(league_id)` | 내 리그 현황(`res.data` = { tier, cohort?, rank, score, total, percentile }, 없으면 null) |
+| `await BBBase.leagues.get_my_ranks_mine(league_id, n)` | 내 티어(또는 방) 내 Top-N(`res.data` = Array) |
+| `await BBBase.leagues.get_my_status(league_id, entity_id)` | 특정 유저 리그 현황 |
+| `await BBBase.leagues.get_my_ranks(league_id, entity_id, n)` | 특정 유저의 그룹 내 Top-N |
+
+> 리그: 점수는 평소처럼 `records.save_mine({ "league_points": ... })` 로 저장(자동 반영). `league_tier`/`league_cohort` 는 서버 관리라 직접 쓰지 말 것. 정의·승강 규칙은 운영자가 미리 등록.
 
 규칙은 REST 와 **100% 동일**하다 — 헤더 2종, envelope, compareMode 병합(`MIN`/`MAX`/
 `INCREMENT`), userId 는 서버 발급, 본인 레코드 소유권. SDK 가 그걸 코드로 감쌌을 뿐이다.

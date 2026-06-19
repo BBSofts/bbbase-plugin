@@ -69,6 +69,12 @@ public class GameBackend : MonoBehaviour
 | `await BBBase.Leaderboards.GetTopEntriesAsync(lbId, n, 0, groupKey)` | 그룹(길드 등) 내 Top-N — `groupByCol` 리더보드 |
 | `await BBBase.Leaderboards.GetRankAsync(lbId, entityId)` | 내 순위(없으면 null) |
 | `await BBBase.Leaderboards.GetRankAsync(lbId, entityId, groupKey)` | 그룹 내 내 순위 |
+| `await BBBase.Leagues.GetMyStatusAsync(leagueId)` | 내 리그 현황(`LeagueStatus`: Tier/Cohort/Rank/Score/Total/Percentile, 없으면 null) |
+| `await BBBase.Leagues.GetMyRanksAsync(leagueId, n)` | 내 티어(또는 방) 내 Top-N(`RankEntry[]`) |
+| `await BBBase.Leagues.GetStatusAsync(leagueId, entityId)` | 특정 유저 리그 현황 |
+| `await BBBase.Leagues.GetRanksAsync(leagueId, entityId, n)` | 특정 유저의 그룹 내 Top-N |
+
+> 리그: 점수는 평소처럼 `Records.SaveMineAsync(new { league_points = ... })` 로 저장(자동 반영). `league_tier`/`league_cohort` 는 서버 관리라 직접 쓰지 말 것. 정의·승강 규칙은 운영자가 미리 등록.
 
 규칙은 REST 와 **100% 동일**하다 — 헤더 2종, envelope, compareMode 병합(`MIN`/`MAX`/
 `INCREMENT`), userId 는 서버 발급, 본인 레코드 소유권. SDK 가 그걸 코드로 감쌌을 뿐이다.
