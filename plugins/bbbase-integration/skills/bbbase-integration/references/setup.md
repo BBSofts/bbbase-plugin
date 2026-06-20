@@ -4,7 +4,7 @@ BBBase 프로젝트가 아직 없을 때 **최초 1회** 수행한다. 완료하
 `API_KEY` 가 확보되고, 이후 게임은 그 두 값만으로 동작한다.
 
 ```
-BASE_URL : https://api.bbbase.io   (dev: http://178.105.162.85:4001)
+BASE_URL : https://api.bbbase.io   (개발 단계엔 BBBase_Keys.md 에 적힌 dev 주소)
 ```
 
 > 정확한 경로·필드·타입은 `{BASE_URL}/docs-json`(라이브 OpenAPI)이 권위다. 아래는 그 위에

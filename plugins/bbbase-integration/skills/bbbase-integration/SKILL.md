@@ -43,8 +43,8 @@ BBBase는 게임 개발자용 자체 호스팅 BaaS다. 게임은 **REST 호출*
 - 아직 BBBase 프로젝트 자체가 없다면(=계정/프로젝트/키 발급 전) → `references/setup.md` 를 읽고
   최초 셋업부터 진행한다. 발급받은 키는 `BBBase_Keys.md` 에 적고 `.gitignore` 에 추가(커밋 금지).
 
-> ℹ️ BBBase 는 BBSofts 내부 테스트용 dev 서버(`http://178.105.162.85:4001`, DB 분리)도 운영하지만,
-> 고객 게임은 prod(`https://api.bbbase.io`)를 쓴다. 개발자가 dev 주소를 명시한 경우에만 그걸 쓴다.
+> ℹ️ 고객 게임은 prod(`https://api.bbbase.io`)를 쓴다. 개발자가 `BBBase_Keys.md` 에 dev 서버 주소를
+> 명시한 경우에만 그 값을 쓴다.
 
 > ⚠️ API_KEY 는 게임 클라이언트에 임베드되는 **공개 취급** 키지만, 그래도 소스
 > 형상관리에는 커밋하지 않는다(키 로테이션을 쉽게 하기 위해).

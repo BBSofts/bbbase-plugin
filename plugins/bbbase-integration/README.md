@@ -49,6 +49,5 @@ plugins/bbbase-integration/
 `version` 을 올린다. 원본 가이드 `docs/BBBASE_*.md` 와 동기화해 둘 것.
 
 > ⚠️ `/docs-json` 위임이 효과를 보려면 배포 서버에서 Swagger가 켜져 있어야 한다
-> (기본 활성, `SWAGGER_DISABLED=1` 이면 꺼짐). 현재 prod(`https://api.bbbase.io/docs-json`)·
-> dev(`http://178.105.162.85:4001/docs-json`) 모두 **200 정상**. 혹시 404 가 뜨면 스킬의
-> 인라인 내용으로 폴백한다(스킬에 그렇게 지시돼 있음).
+> (기본 활성, `SWAGGER_DISABLED=1` 이면 꺼짐). 현재 prod(`https://api.bbbase.io/docs-json`)
+> **200 정상**. 혹시 404 가 뜨면 스킬의 인라인 내용으로 폴백한다(스킬에 그렇게 지시돼 있음).
