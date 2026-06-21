@@ -70,8 +70,10 @@ func _ready() -> void:
 | `await BBBase.leagues.get_my_ranks_mine(league_id, n)` | 내 티어(또는 방) 내 Top-N(`res.data` = Array) |
 | `await BBBase.leagues.get_my_status(league_id, entity_id)` | 특정 유저 리그 현황 |
 | `await BBBase.leagues.get_my_ranks(league_id, entity_id, n)` | 특정 유저의 그룹 내 Top-N |
+| `await BBBase.leagues.ack_result_mine(league_id)` | 승급 연출 본 뒤 결과 확인(seen=true) |
 
 > 리그: 점수는 평소처럼 `records.save_mine({ "league_points": ... })` 로 저장(자동 반영). `league_tier`/`league_cohort` 는 서버 관리라 직접 쓰지 말 것. 정의·승강 규칙은 운영자가 미리 등록.
+> **승급 연출**: `get_my_status_mine().data.lastResult`(없으면 null)가 지난 사이클 결과(camelCase). `lastResult.change=="promote" && not lastResult.seen` 이면 승급 애니메이션 → `ack_result_mine(league_id)` 로 확인. `lastResult.prevRank` 로 순위 변화도 연출.
 
 규칙은 REST 와 **100% 동일**하다 — 헤더 2종, envelope, compareMode 병합(`MIN`/`MAX`/
 `INCREMENT`), userId 는 서버 발급, 본인 레코드 소유권. SDK 가 그걸 코드로 감쌌을 뿐이다.

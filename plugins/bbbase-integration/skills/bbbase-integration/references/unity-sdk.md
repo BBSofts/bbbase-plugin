@@ -73,8 +73,10 @@ public class GameBackend : MonoBehaviour
 | `await BBBase.Leagues.GetMyRanksAsync(leagueId, n)` | 내 티어(또는 방) 내 Top-N(`RankEntry[]`) |
 | `await BBBase.Leagues.GetStatusAsync(leagueId, entityId)` | 특정 유저 리그 현황 |
 | `await BBBase.Leagues.GetRanksAsync(leagueId, entityId, n)` | 특정 유저의 그룹 내 Top-N |
+| `await BBBase.Leagues.AcknowledgeResultAsync(leagueId)` | 승급 연출 본 뒤 결과 확인(seen=true) |
 
 > 리그: 점수는 평소처럼 `Records.SaveMineAsync(new { league_points = ... })` 로 저장(자동 반영). `league_tier`/`league_cohort` 는 서버 관리라 직접 쓰지 말 것. 정의·승강 규칙은 운영자가 미리 등록.
+> **승급 연출**: `GetMyStatusAsync().LastResult`(`LeagueResult`, 없으면 null)가 지난 사이클 결과. `LastResult.IsPromotion && !LastResult.Seen` 이면 승급 애니메이션 → `AcknowledgeResultAsync(leagueId)` 로 확인. `PrevRank` 로 순위 변화도 연출.
 
 규칙은 REST 와 **100% 동일**하다 — 헤더 2종, envelope, compareMode 병합(`MIN`/`MAX`/
 `INCREMENT`), userId 는 서버 발급, 본인 레코드 소유권. SDK 가 그걸 코드로 감쌌을 뿐이다.

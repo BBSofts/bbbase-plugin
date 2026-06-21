@@ -92,12 +92,18 @@ curl "https://api.bbbase.io/projects/{projectId}/leagues/{leagueId}/me/{userId}"
 
 # 내 그룹 랭킹 — 내 티어(또는 방) 내 top-N (리더보드 ranks 형태)
 curl "https://api.bbbase.io/projects/{projectId}/leagues/{leagueId}/ranks/{userId}?limit=30" -H "X-API-Key: {API_KEY}"
+
+# 승급 연출 본 뒤 결과 확인 처리(seen=true) — 다음 조회부터 안 뜸
+curl -X POST "https://api.bbbase.io/projects/{projectId}/leagues/{leagueId}/me/{userId}/ack" -H "X-API-Key: {API_KEY}"
 ```
 ```json
 { "success": true, "data": {
   "leagueId": "...", "entityId": "u_123", "tier": 2, "cohort": "t2-p5-r0",
-  "rank": 4, "score": 1500, "total": 30, "percentile": 13.3 } }
+  "rank": 4, "score": 1500, "total": 30, "percentile": 13.3,
+  "lastResult": { "period": 5, "tierFrom": 1, "tierTo": 2, "change": "promote",
+                  "rank": 3, "groupSize": 30, "prevRank": 8, "seen": false } } }
 ```
+> **승급 연출(듀오링고식):** `lastResult` 는 지난 사이클 결과. `change=="promote" && !seen` 이면 접속 시 승급 애니메이션을 띄우고, 본 뒤 `.../me/{userId}/ack` 로 확인 처리한다. `change`=promote/demote/stay, `prevRank` 로 "8등→3등" 순위 변화도 연출 가능. 결과 컬럼(`league_last_result`)도 서버 관리라 직접 쓰지 말 것.
 
 ## 3. 점수 갱신은 자동
 ```bash
