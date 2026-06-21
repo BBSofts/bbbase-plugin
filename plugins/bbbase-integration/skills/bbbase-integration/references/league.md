@@ -80,7 +80,8 @@ DELETE /projects/{projectId}/leagues/{id}        # 자동 생성 리더보드도
 POST   /projects/{projectId}/leagues/{id}/run    # 수동 승강 1사이클 (JWT) → { promoted, demoted }
 ```
 > 점수/티어/코호트 컬럼·entityType·tierCount 는 생성 후 불변(랭킹 구조 보호). 바꾸려면 새 리그 등록.
-> 에러: pointsCol/tierCol 미존재·NUMBER 아님/cohortCol STRING 아님/승강 규칙 0개 → `INVALID_LEAGUE_CONFIG`.
+> 에러: pointsCol/tierCol 미존재·NUMBER 아님/cohortCol STRING 아님/한 리그 내 컬럼 중복/승강 규칙 0개 → `INVALID_LEAGUE_CONFIG`.
+> ⚠️ **동시 운영 시 컬럼 분리:** 리그를 2개 이상 같이 돌리면 `pointsCol`/`tierCol`/`cohortCol`/`resultCol` 을 **리그마다 다르게** 줘야 한다(겹치면 `409 LEAGUE_DUPLICATE`). 리그 하나만이면 기본값 그대로.
 
 ## 2. 게임 클라이언트 조회 (API 키 필요)
 
