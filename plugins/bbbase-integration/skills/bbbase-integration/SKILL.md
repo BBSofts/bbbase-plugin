@@ -7,6 +7,7 @@ description: >-
   BBBase API로 구현할 때 사용한다. "점수를 서버에 저장", "랭킹 붙여줘", "유저 데이터
   클라우드 저장/동기화", "닉네임 중복 검사", "베스트타임 리더보드",
   "게스트 로그인", "리그", "티어 승격 강등", "브론즈 실버 골드 리그",
+  "리텐션", "이탈율", "이탈구간", "퍼널", "retention", "D1 D7 리텐션",
   "BBBase", "백엔드 연동", "BBBase Unity SDK", "BBBase Godot SDK" 같은 요청이
   나오면 추측으로 엔드포인트를 만들지 말고 반드시 이 스킬을 먼저 참고할 것. Unity 프로젝트에
   BBBase SDK(`Assets/BBBase`/`using BBBaseSdk`)나 Godot 프로젝트에 BBBase SDK
@@ -133,9 +134,12 @@ curl -X PUT https://api.bbbase.io/projects/{PROJECT_ID}/entities/user/{userId}/r
 | `MIN` | 더 작을 때만 갱신 | 레이스 타임(`best_time`) |
 | `MAX` | 더 클 때만 갱신 | 최고 점수, 최고 스테이지 |
 | `INCREMENT` | 기존값 + 보낸값 (원자적, 동시성 안전) | 누적 카운트(플레이 횟수) |
+| `BITSET` | 비트 OR (한 번 켜지면 유지) | 이탈구간·퍼널 도달 단계 |
 
 그래서 클라이언트는 "현재 기록이 더 좋은지" 비교할 필요 없이 그냥 PUT 하면 된다 —
 서버가 `MIN`/`MAX` 로 막아준다. 동시 저장으로 인한 재화 중복도 서버가 락으로 방지한다.
+`BITSET` 은 단계 N 도달 시 `1 << N` 의 **10진 문자열**(예 6단계 `"64"`)을 저장하면 서버가
+기존 값과 OR — 이탈구간 분석용. 컬럼 타입은 `STRING`. 자세히는 `references/analytics.md`.
 
 > 이 컬럼들(`best_time` 등)은 미리 스키마에 정의돼 있어야 한다. 스키마에 없는 컬럼을
 > PUT 하면 `UNKNOWN_COLUMN`. 스키마 정의는 `references/records.md` 참고.
@@ -155,6 +159,7 @@ curl -X PUT https://api.bbbase.io/projects/{PROJECT_ID}/entities/user/{userId}/r
 | 컬럼(스키마) 정의·수정, 유저 외 엔티티(길드/그룹/시즌) 레코드 | `references/records.md` |
 | 리더보드 등록 + top-N/내 순위 조회 | `references/leaderboard.md` |
 | 리그(티어 승격/강등) 등록 + 내 현황/그룹 랭킹 조회 | `references/league.md` |
+| 리텐션·이탈율·이탈구간(퍼널) 분석 — BITSET 단계 비트 저장 | `references/analytics.md` |
 | 닉네임·길드명 등 중복 금지 | `references/unique-constraints.md` |
 | 주기적 리셋(일/주/월), 변경 이력(감사로그) 조회 | `references/reset-and-audit.md` |
 
