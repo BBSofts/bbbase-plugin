@@ -94,6 +94,10 @@ GET /projects/{PROJECT_ID}/analytics/funnel?column=funnel
 
 도달자 수가 단계마다 줄어드는 모양이 퍼널이다 — 급격히 꺾이는 구간이 주요 이탈 지점.
 
+> 퍼널 집계는 리텐션처럼 **매일 새벽(UTC) rollup** 으로 굽는다(조회 시 전체 레코드 풀스캔 안 함).
+> 방금 저장한 비트는 다음 집계 후 반영 — 즉시 보려면 `POST .../analytics/retention/run`(운영자) 으로
+> 수동 트리거. funnel 조회는 그 요약(FunnelRollup)만 읽으므로 유저가 많아도 가볍다.
+
 ## 한계
 
 - 비트마스크는 "여부"만 담는다 → **유입 소스별·국가별 리텐션 비교** 같은 세그먼트 분석은 불가.
