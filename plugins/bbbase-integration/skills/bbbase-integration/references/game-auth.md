@@ -51,8 +51,8 @@ curl -X POST https://api.bbbase.io/projects/{PROJECT_ID}/auth/guest \
 - `refreshToken` — access 만료 시 갱신용. 안전히 저장(기기 보안 저장소 권장).
 
 > `deviceId` 는 기기마다 **안정적이고 고유**해야 한다(예: 플랫폼 광고ID 대체값, 설치 시
-> 생성해 영구 저장한 UUID). phase 1 에는 **계정 연동이 없으므로** deviceId 를 잃으면
-> 그 게스트 계정(=진행도)도 잃는다. 기기 변경/재설치 이전 기능은 추후 제공.
+> 생성해 영구 저장한 UUID). 게스트만 쓰면 deviceId 를 잃을 때 진행도도 잃으니, 진짜 보존이
+> 필요하면 **소셜 계정을 링킹**해두라(아래 4번). 링킹하면 어느 기기에서든 복구된다.
 
 ## 2. 토큰을 붙여 레코드 호출
 
@@ -87,7 +87,31 @@ curl -X POST https://api.bbbase.io/projects/{PROJECT_ID}/auth/refresh \
 권장 흐름: 게임 시작 시 저장된 토큰으로 호출 → `401` 이면 refresh → refresh 도 실패면
 저장된 `deviceId` 로 게스트 로그인 재수행(같은 userId 복구).
 
-## 4. 롤아웃 토글 — `GAME_USER_AUTH_REQUIRED` (서버측)
+## 4. 계정 링킹 + 클라우드 세이브
+
+클라우드 세이브는 **이미 동작한다** — 레코드가 처음부터 `userId` 로 서버에 저장되니, 같은
+계정으로 로그인하면 어느 기기서든 불러온다. 링킹은 **게스트 진행도를 잃지 않고 소셜 계정에
+묶는** 기능이다. **핵심: 링킹해도 `userId` 는 안 바뀐다** → 세이브가 그대로 따라온다.
+
+```
+POST   /projects/{pid}/auth/link            (X-API-Key + Bearer)  { "provider": "GOOGLE", "idToken": "..." }
+DELETE /projects/{pid}/auth/link/{provider}  (X-API-Key + Bearer)  provider = GUEST|GOOGLE|APPS_IN_TOSS
+GET    /projects/{pid}/auth/me              (X-API-Key + Bearer)  → { userId, isGuest, providers:[...] }
+```
+
+- **게스트→구글 연동**: 게스트 로그인 상태에서 `POST /auth/link {provider:"GOOGLE", idToken}`.
+  링킹 바디는 provider 별로 `idToken`(구글) / `authorizationCode`(앱인토스) / `deviceId`(게스트).
+- **기기 변경 복구**: 새 기기에선 그냥 **구글 로그인**(`/auth/google`) — 링킹이 아니라 로그인이다.
+  그 구글이 가리키는 기존 계정으로 들어가 세이브가 복구된다.
+- **링크 해제**: `DELETE /auth/link/{provider}`. **마지막 수단은 해제 불가**(`CANNOT_UNLINK_LAST`).
+
+> ⚠️ `409 IDENTITY_ALREADY_LINKED` — 링크하려는 소셜이 **이미 다른 계정**에 묶였을 때. 서버는
+> 자동 머지하지 않고 거부하며 `error.details.conflictUserId` 로 상대 계정을 준다. "기존 계정으로
+> 전환?(현재 진행도 사라짐)" 을 유저에게 묻고, 전환 택하면 그 소셜로 **로그인**해 넘어간다.
+
+SDK: Unity `LinkGoogleAsync/UnlinkAsync/GetMeAsync`, Godot `link_google/unlink/get_me`.
+
+## 5. 롤아웃 토글 — `GAME_USER_AUTH_REQUIRED` (서버측)
 
 서버에 이 인증의 **강제 여부** 토글이 있다(운영자 env):
 

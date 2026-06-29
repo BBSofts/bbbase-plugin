@@ -3,10 +3,13 @@ name: bbbase-integration
 description: >-
   BBBase(자체 호스팅 게임 BaaS) REST API 연동 스킬. 게임 클라이언트/서버에서 유저
   데이터 저장·불러오기, 리더보드/랭킹, 리그(티어 승격/강등), 닉네임·길드명 중복 방지, 일일/주간 리셋,
-  스키마 정의, 감사로그, 게임 플레이어 로그인/인증(게스트 로그인)을
+  스키마 정의, 감사로그, 게임 플레이어 로그인/인증(게스트·소셜 로그인),
+  게스트→소셜 계정 링킹/연동, 클라우드 세이브를
   BBBase API로 구현할 때 사용한다. "점수를 서버에 저장", "랭킹 붙여줘", "유저 데이터
   클라우드 저장/동기화", "닉네임 중복 검사", "베스트타임 리더보드",
-  "게스트 로그인", "리그", "티어 승격 강등", "브론즈 실버 골드 리그",
+  "게스트 로그인", "구글 로그인 연동", "계정 연동", "게스트 계정 구글로 전환",
+  "기기 변경 이어하기", "클라우드 세이브", "계정 링킹",
+  "리그", "티어 승격 강등", "브론즈 실버 골드 리그",
   "리텐션", "이탈율", "이탈구간", "퍼널", "retention", "D1 D7 리텐션",
   "BBBase", "백엔드 연동", "BBBase Unity SDK", "BBBase Godot SDK" 같은 요청이
   나오면 추측으로 엔드포인트를 만들지 말고 반드시 이 스킬을 먼저 참고할 것. Unity 프로젝트에
@@ -155,7 +158,8 @@ curl -X PUT https://api.bbbase.io/projects/{PROJECT_ID}/entities/user/{userId}/r
 | **Unity 게임 + SDK 설치됨**(`Assets/BBBase/`) → SDK 로 연동 | `references/unity-sdk.md` |
 | **Godot 게임 + SDK 설치됨**(`addons/bbbase/`) → SDK 로 연동 | `references/godot-sdk.md` |
 | 최초 셋업(계정·프로젝트·API키 발급), 운영자 로그인/토큰 갱신 | `references/setup.md` |
-| 게임 플레이어 게스트 로그인, 게임유저 토큰 발급·첨부·refresh, 본인 레코드 소유권 | `references/game-auth.md` |
+| 게임 플레이어 게스트·소셜 로그인, 게임유저 토큰 발급·첨부·refresh, 본인 레코드 소유권 | `references/game-auth.md` |
+| 게스트→소셜 계정 링킹/연동, 클라우드 세이브, 기기 변경 복구, `link`/`unlink`/`me` | `references/game-auth.md` |
 | 컬럼(스키마) 정의·수정, 유저 외 엔티티(길드/그룹/시즌) 레코드 | `references/records.md` |
 | 리더보드 등록 + top-N/내 순위 조회 | `references/leaderboard.md` |
 | 리그(티어 승격/강등) 등록 + 내 현황/그룹 랭킹 조회 | `references/league.md` |

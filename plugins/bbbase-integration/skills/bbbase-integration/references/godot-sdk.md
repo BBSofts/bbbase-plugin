@@ -57,6 +57,10 @@ func _ready() -> void:
 | `await BBBase.auth.login_apps_in_toss(code)` | 앱인토스 |
 | `await BBBase.auth.refresh()` | 토큰 회전(자동 교체 저장) |
 | `await BBBase.auth.logout()` | 서버 폐기 + 로컬 세션 삭제 |
+| `await BBBase.auth.link_google(id_token)` | 현재 계정에 구글 연동(userId 불변, 세이브 유지) |
+| `await BBBase.auth.link_guest(device_id?)` / `link_apps_in_toss(code)` | 게스트/앱인토스 신원 추가 |
+| `await BBBase.auth.unlink(provider)` | 링크 해제(마지막 수단은 `CANNOT_UNLINK_LAST`) |
+| `await BBBase.auth.get_me()` | `res.data = {userId, isGuest, providers}` |
 | `await BBBase.records.save_mine(dict)` | 내 레코드 저장(entity_type="user") |
 | `await BBBase.records.load_mine()` | 내 레코드(`res.data`, 없으면 null) |
 | `await BBBase.records.save(type, id, dict)` | 범용 엔티티(guild/season 등) 저장 |

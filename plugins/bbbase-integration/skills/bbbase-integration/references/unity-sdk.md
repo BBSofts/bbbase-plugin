@@ -60,6 +60,10 @@ public class GameBackend : MonoBehaviour
 | `await BBBase.Auth.LoginAppsInTossAsync(code)` | 앱인토스 |
 | `await BBBase.Auth.RefreshAsync()` | 토큰 회전(자동 교체 저장) |
 | `await BBBase.Auth.LogoutAsync()` | 서버 폐기 + 로컬 세션 삭제 |
+| `await BBBase.Auth.LinkGoogleAsync(idToken)` | 현재 계정에 구글 연동(userId 불변, 세이브 유지) |
+| `await BBBase.Auth.LinkGuestAsync(deviceId?)` / `LinkAppsInTossAsync(code)` | 게스트/앱인토스 신원 추가 |
+| `await BBBase.Auth.UnlinkAsync(provider)` | 링크 해제(마지막 수단은 `CANNOT_UNLINK_LAST`) |
+| `await BBBase.Auth.GetMeAsync()` | `AccountInfo{ UserId, IsGuest, Providers }` |
 | `await BBBase.Records.SaveMineAsync(obj)` | 내 레코드 저장(entityType="user") |
 | `await BBBase.Records.LoadMineAsync()` | 내 레코드(JObject, 없으면 null) |
 | `await BBBase.Records.LoadMineAsync<T>()` | 내 레코드를 타입 T 로(없으면 default) |
