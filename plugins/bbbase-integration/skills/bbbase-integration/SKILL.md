@@ -166,6 +166,7 @@ curl -X PUT https://api.bbbase.io/projects/{PROJECT_ID}/entities/user/{userId}/r
 | 리텐션·이탈율·이탈구간(퍼널) 분석 — BITSET 단계 비트 저장 | `references/analytics.md` |
 | 닉네임·길드명 등 중복 금지 | `references/unique-constraints.md` |
 | 주기적 리셋(일/주/월), 변경 이력(감사로그) 조회 | `references/reset-and-audit.md` |
+| 우편함 — 운영자 발송(보상 첨부) + 게임클라 수령(서버 원자 지급) | `references/mailbox.md` |
 | 로그인 실패 등 클라 이벤트 로그 수집(게임유저 토큰 없이 API 키만) | `references/logs.md` |
 
 ## 4.5 운영자 셋업이 필요한 작업 — 먼저 개발자에게 물어라 (중요)
