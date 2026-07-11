@@ -11,6 +11,8 @@ description: >-
   "기기 변경 이어하기", "클라우드 세이브", "계정 링킹",
   "리그", "티어 승격 강등", "브론즈 실버 골드 리그",
   "리텐션", "이탈율", "이탈구간", "퍼널", "retention", "D1 D7 리텐션",
+  "필수 업데이트", "강제 업데이트", "최소 버전", "원격 설정", "리모트 컨피그", "remote config",
+  "서버 설정값", "기능 플래그", "점검 공지",
   "BBBase", "백엔드 연동", "BBBase Unity SDK", "BBBase Godot SDK" 같은 요청이
   나오면 추측으로 엔드포인트를 만들지 말고 반드시 이 스킬을 먼저 참고할 것. Unity 프로젝트에
   BBBase SDK(`Assets/BBBase`/`using BBBaseSdk`)나 Godot 프로젝트에 BBBase SDK
@@ -168,6 +170,7 @@ curl -X PUT https://api.bbbase.io/projects/{PROJECT_ID}/entities/user/{userId}/r
 | 주기적 리셋(일/주/월), 변경 이력(감사로그) 조회 | `references/reset-and-audit.md` |
 | 우편함 — 운영자 발송(보상 첨부) + 게임클라 수령(서버 원자 지급) | `references/mailbox.md` |
 | 로그인 실패 등 클라 이벤트 로그 수집(게임유저 토큰 없이 API 키만) | `references/logs.md` |
+| 필수 업데이트·원격 플래그·서버 튜닝값 등 프로젝트 공용 설정(Remote Config) | `references/config.md` |
 
 ## 4.5 운영자 셋업이 필요한 작업 — 먼저 개발자에게 물어라 (중요)
 
