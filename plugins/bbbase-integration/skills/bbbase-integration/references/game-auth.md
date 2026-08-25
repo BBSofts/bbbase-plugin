@@ -123,10 +123,39 @@ SDK: Unity `LinkGoogleAsync/UnlinkAsync/GetMeAsync`, Godot `link_google/unlink/g
 차단이 실제로 활성화된다. **연동 코드는 토글과 무관하게 지금 넣어두면 된다**(토글 off
 에서도 토큰을 보내는 건 무해하고, on 전환 시 그대로 동작).
 
+## 6. 제재된 계정 처리 — `USER_BANNED`
+
+운영자가 어뷰저를 제재하면 서버가 **모든 요청을 `403 USER_BANNED` 로 거절**한다. 로그인·토큰
+갱신도 거부되므로 재로그인으로 빠져나갈 수 없다.
+
+```jsonc
+// 어떤 요청이든 제재 중이면
+{ "success": false, "error": {
+    "code": "USER_BANNED",
+    "message": "이 계정은 일시 제재되었습니다",
+    "details": { "expiresAt": "2026-08-27T06:22:18.435Z", "reason": "랭킹 점수 조작" }
+} }
+// expiresAt 이 null 이면 영구 제재
+```
+
+**게임이 해야 할 일:** 플레이를 중단하고 정지 안내 화면을 띄운다. `details.expiresAt`(null=영구)과
+`details.reason` 을 그대로 보여주면 된다. **재시도 루프를 돌리지 말 것** — 제재가 풀릴 때까지
+계속 403 이고 서버만 두드리게 된다.
+
+> 제재 집행은 서버가 한다. 클라가 이 응답을 무시하고 게임을 계속 돌려도 저장·랭킹·보상은 이미
+> 전부 막혀 있으므로 **데이터는 안전하다** — 화면 처리는 유저 경험 문제지 보안 문제가 아니다.
+
+`GET /projects/{projectId}/auth/me` 는 제재 중에도 열려 있다(계정 상태 화면을 그릴 수 있게).
+
+공식 SDK 를 쓰면 이 감지가 내장돼 있다 — Godot 은 `BBBase.banned(expires_at, reason)` 시그널,
+Unity 는 `BBBase.Banned` 이벤트로 받는다(동시 요청이 여러 번 403 을 받아도 1회만 발생).
+자세한 건 `references/godot-sdk.md` / `references/unity-sdk.md`.
+
 ## 자주 만나는 에러
 
 | code / status | 의미 | 대처 |
 |---|---|---|
 | `403` `FORBIDDEN` | 남의 userId 로 레코드 접근 | 경로 userId 를 로그인 응답의 userId 로 교정 |
+| `403` `USER_BANNED` | 운영자가 제재한 계정 | 재시도·재로그인 금지. 정지 안내 표시(위 섹션 6) |
 | `401` `UNAUTHORIZED` (토큰) | 토큰 누락/만료/위조 | refresh → 실패 시 게스트 재로그인 |
 | `401` `INVALID_API_KEY` | API 키 문제 | `X-API-Key` 확인(게임유저 토큰과 별개) |

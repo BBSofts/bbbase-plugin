@@ -202,6 +202,7 @@ curl -X PUT https://api.bbbase.io/projects/{PROJECT_ID}/entities/user/{userId}/r
 | `LEADERBOARD_SCORE_NOT_FOUND` | 랭킹에 아직 점수 없음 | "기록 없음" 으로 표시 |
 | 401 / `UNAUTHORIZED` | 인증 헤더 잘못됨 | API키 vs 게임유저 토큰 vs 운영자 JWT 확인(섹션 1) |
 | 403 / `FORBIDDEN` | 남의 userId 로 레코드 접근(인증 켜진 경우) | 경로 userId 를 로그인 응답의 userId 로 교정(`references/game-auth.md`) |
+| `USER_BANNED` (403) | 운영자가 제재한 계정 | **재시도·재로그인 금지.** `details.expiresAt`(null=영구)·`details.reason` 으로 정지 안내 표시(`references/game-auth.md`) |
 
 Rate limit: 게임 데이터 API는 **API 키당 분당 600회**, 인증 API는 IP당 분당 10회.
 요청 본문은 최대 256KB(게임 레코드는 보통 수 KB라 문제없음).

@@ -96,8 +96,33 @@ if not res.ok:
 ```
 
 주요 코드: `DUPLICATE_VALUE`(409), `UNKNOWN_COLUMN`, `RECORD_NOT_FOUND`, `RATE_LIMIT_EXCEEDED`,
-`UNAUTHORIZED`, `FORBIDDEN`, `NOT_LOGGED_IN`(로그인 전 호출), `NETWORK_ERROR`(연결 실패).
+`UNAUTHORIZED`, `FORBIDDEN`, `USER_BANNED`(403 제재), `NOT_LOGGED_IN`(로그인 전 호출),
+`NETWORK_ERROR`(연결 실패).
 `load_mine`/`load`/`get_rank` 는 "없음"을 에러 대신 **`ok=true, data=null`** 로 돌려준다.
+
+서버가 `details` 를 실어보내는 코드는 `res.error_details`(Dictionary)로 읽는다 —
+`USER_BANNED` 의 `expiresAt`/`reason`, `IDENTITY_ALREADY_LINKED` 의 `conflictUserId` 등.
+
+## 세션 시그널 — 재로그인·제재 (SDK 1.11.0+)
+
+에러코드로 매번 분기하지 말고 시그널 2개만 구독하면 된다. 둘 다 SDK 가 자동 감지한다.
+
+```gdscript
+# 액세스·리프레시 토큰이 모두 만료돼 SDK 가 세션을 정리함 → 재로그인 UI
+BBBase.session_expired.connect(func(provider: String) -> void:
+    goto_login(provider)   # provider == "" 면 로그인 수단 선택 화면
+)
+
+# 운영자가 이 계정을 제재함 → 플레이 중단 + 정지 안내
+BBBase.banned.connect(func(expires_at: String, reason: String) -> void:
+    get_tree().paused = true
+    $BanPopup.show_ban(expires_at, reason)   # expires_at == "" 면 영구 제재
+)
+```
+
+`banned` 는 동시 요청이 403 을 여러 번 받아도 **1회만** 방출된다(정지 팝업 중복 방지).
+SDK 는 제재 시 토큰을 지우지 않는다 — `auth/me` 는 제재 중에도 열려 있고, 기간제 제재가
+풀리면 재로그인 없이 복구돼야 하기 때문이다. 정지 화면 표시는 게임의 몫이다.
 
 ## 자주 막히는 부분
 

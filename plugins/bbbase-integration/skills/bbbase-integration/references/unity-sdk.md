@@ -97,8 +97,31 @@ catch (BBBaseException e) when (e.Code == BBBaseErrorCodes.DuplicateValue)
 ```
 
 주요 코드: `DuplicateValue`(409), `UnknownColumn`, `RecordNotFound`, `RateLimitExceeded`,
-`Unauthorized`, `Forbidden`, `NotLoggedIn`(로그인 전 호출), `NetworkError`(연결 실패).
+`Unauthorized`, `Forbidden`, `UserBanned`(403 제재), `NotLoggedIn`(로그인 전 호출),
+`NetworkError`(연결 실패).
 `LoadMineAsync`/`GetRankAsync` 는 "없음"을 예외 대신 **null** 로 돌려준다.
+
+서버가 `details` 를 실어보내는 코드는 `e.Details` 로 읽는다 — `UserBanned` 의
+`expiresAt`/`reason`, `IdentityAlreadyLinked` 의 `conflictUserId` 등.
+
+## 세션 이벤트 — 재로그인·제재 (SDK 1.12.0+)
+
+예외 코드로 매번 분기하지 말고 이벤트 2개만 구독하면 된다. 둘 다 SDK 가 자동 감지한다.
+
+```csharp
+// 액세스·리프레시 토큰이 모두 만료돼 SDK 가 세션을 정리함 → 재로그인 UI
+BBBase.SessionExpired += provider => GotoLogin(provider);
+
+// 운영자가 이 계정을 제재함 → 플레이 중단 + 정지 안내
+BBBase.Banned += (expiresAt, reason) => {
+    Time.timeScale = 0f;
+    banPopup.Show(expiresAt, reason);   // expiresAt == null 이면 영구 제재
+};
+```
+
+`Banned` 는 동시 요청이 403 을 여러 번 받아도 **1회만** 방출된다(정지 팝업 중복 방지).
+SDK 는 제재 시 토큰을 지우지 않는다 — `auth/me` 는 제재 중에도 열려 있고, 기간제 제재가
+풀리면 재로그인 없이 복구돼야 하기 때문이다. 정지 화면 표시는 게임의 몫이다.
 
 ## 자주 막히는 부분
 
