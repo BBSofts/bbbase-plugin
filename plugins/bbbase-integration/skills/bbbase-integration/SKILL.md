@@ -13,6 +13,8 @@ description: >-
   "리텐션", "이탈율", "이탈구간", "퍼널", "retention", "D1 D7 리텐션",
   "필수 업데이트", "강제 업데이트", "최소 버전", "원격 설정", "리모트 컨피그", "remote config",
   "서버 설정값", "기능 플래그", "점검 공지",
+  "웹게임", "브라우저 게임", "HTML5 게임", "WebGL 빌드", "Godot Web 빌드", "앱인토스 미니앱",
+  "CORS", "Access-Control-Allow-Origin", "허용 origin", "브라우저에서 API 호출이 막힘",
   "BBBase", "백엔드 연동", "BBBase Unity SDK", "BBBase Godot SDK" 같은 요청이
   나오면 추측으로 엔드포인트를 만들지 말고 반드시 이 스킬을 먼저 참고할 것. Unity 프로젝트에
   BBBase SDK(`Assets/BBBase`/`using BBBaseSdk`)나 Godot 프로젝트에 BBBase SDK
@@ -35,6 +37,11 @@ BBBase는 게임 개발자용 자체 호스팅 BaaS다. 게임은 **REST 호출*
 >
 > SDK 가 헤더·envelope·세션을 대신 처리한다. SDK 가 없거나 고객이 REST 를 원하면 아래 REST
 > 규약대로 진행한다. 어느 쪽이든 인증·envelope·compareMode 규약은 동일하다.
+
+> **🌐 브라우저에서 도는 빌드면 `references/web-build.md` 를 먼저 읽어라.**
+> 순수 JS/TS 웹게임, Godot Web/WASM, Unity WebGL, 앱인토스 미니앱이 해당된다. **CORS origin
+> 등록이 선행 필수**라 안 하면 로그인 요청부터 브라우저가 차단하고, 증상이 CORS 에러로 보여
+> 자기 코드 버그로 오진하기 쉽다. 네이티브 빌드는 무관하다.
 
 ## 0. 먼저 자격증명 확보
 
@@ -157,6 +164,8 @@ curl -X PUT https://api.bbbase.io/projects/{PROJECT_ID}/entities/user/{userId}/r
 
 | 하려는 것 | 읽을 파일 |
 |---|---|
+| **브라우저에서 도는 빌드**(웹게임/WebGL/Godot Web/앱인토스 미니앱) → CORS origin + 웹 게스트 로그인 | `references/web-build.md` |
+| CORS·`Access-Control-Allow-Origin` 에러로 BBBase 호출이 막힘 | `references/web-build.md` |
 | **Unity 게임 + SDK 설치됨**(`Assets/BBBase/`) → SDK 로 연동 | `references/unity-sdk.md` |
 | **Godot 게임 + SDK 설치됨**(`addons/bbbase/`) → SDK 로 연동 | `references/godot-sdk.md` |
 | 최초 셋업(계정·프로젝트·API키 발급), 운영자 로그인/토큰 갱신 | `references/setup.md` |

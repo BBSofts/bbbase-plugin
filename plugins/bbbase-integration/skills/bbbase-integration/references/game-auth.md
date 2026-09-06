@@ -53,6 +53,10 @@ curl -X POST https://api.bbbase.io/projects/{PROJECT_ID}/auth/guest \
 > `deviceId` 는 기기마다 **안정적이고 고유**해야 한다(예: 플랫폼 광고ID 대체값, 설치 시
 > 생성해 영구 저장한 UUID). 게스트만 쓰면 deviceId 를 잃을 때 진행도도 잃으니, 진짜 보존이
 > 필요하면 **소셜 계정을 링킹**해두라(아래 4번). 링킹하면 어느 기기에서든 복구된다.
+>
+> 🌐 **브라우저 빌드라면** `localStorage` 가 잘 날아가 게스트 계정 유실이 잦다. 플랫폼이 주는
+> 안정적 익명키를 쓰는 게 낫다 — 예: 앱인토스 미니앱은 `User.getAnonymousKey()` 의 `hash` 를
+> 그대로 `deviceId` 에 넣는다. 웹 전반은 `references/web-build.md` 참고(CORS origin 등록 포함).
 
 ## 2. 토큰을 붙여 레코드 호출
 
