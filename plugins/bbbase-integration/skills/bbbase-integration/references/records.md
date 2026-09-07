@@ -54,6 +54,18 @@ PATCH  /projects/{projectId}/schemas/{schemaId}   # 변경할 필드만. columnN
 DELETE /projects/{projectId}/schemas/{schemaId}
 ```
 
+**컬럼 삭제는 CLI 를 쓰는 편이 안전하다.** 리더보드/리그/유니크제약은 컬럼을 문자열로만
+가리켜 DB 가 막아주지 않으므로, 위 `DELETE` 는 참조가 남아 있어도 그냥 성공하고 깨진 참조는
+런타임에야 드러난다. CLI 는 삭제 전에 리셋잡·리더보드·리그·유니크제약을 검사하고 참조가
+있으면 중단한다(`--force` 로만 강행).
+
+```bash
+bbbase schema:delete {projectId} best_time            # 참조 있으면 중단
+bbbase schema:delete {projectId} attempts --scope group
+```
+
+> 삭제해도 이미 저장된 레코드의 JSONB 값은 지워지지 않는다 — 정의만 사라진다.
+
 ## compareMode 동작 상세
 
 레코드 저장(`PUT .../record`)은 컬럼별 compareMode 로 병합된다:
