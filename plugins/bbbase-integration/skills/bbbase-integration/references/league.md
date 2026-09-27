@@ -19,6 +19,8 @@ BASE_URL : https://api.bbbase.io
 ### 두 모델
 - **티어 풀**(기본) — 한 티어 = 하나의 큰 랭킹. `cohortCol` 생략.
 - **코호트**(Duolingo 식) — 한 티어를 `cohortSize` 명씩 방으로 쪼개 방 안에서 승강. `cohortCol` 지정(예 `"league_cohort"`, 없으면 STRING 자동 등록).
+  - 방 배정: 승강 사이클 때 이번 주기 참가자(점수가 `resetPointsTo` 에서 달라진 유저)만 재배정. 사이클 중간에 처음 점수를 올린 신규·복귀 유저는 **그 저장에서 즉시** 현재 티어의 합류 방(`t{tier}-p{period}-n{n}`)에 들어간다. 한 주기 내내 안 한 휴면 유저는 방이 비워지고 티어는 유지.
+  - 방이 없는 동안 `me` 응답은 `cohort: null`(rank/total 은 리그 전체 기준) → 클라는 "한 판 하면 리그 참가" 안내를 띄울 것.
 
 ## 사전 준비 — 스키마 (운영자 JWT)
 
@@ -51,7 +53,7 @@ curl -X POST https://api.bbbase.io/projects/{projectId}/schemas \
 | entityType | string | ❌ | 기본 `user` |
 | pointsCol / tierCol | string | ❌ | 기본 `league_points` / `league_tier` (둘 다 NUMBER) |
 | cohortCol | string | ❌ | 지정 시 코호트 모델(자동 STRING 등록) |
-| cohortSize | int(≥2) | ❌ | 방 정원. 기본 30 |
+| cohortSize | int(≥2) | ❌ | 방 정원(최대 인원). 기본 30. 방마다 고르게 분할. 1인 방은 승강 없음 |
 | resetPointsTo | any | ❌ | 승강 후 점수 초기화 값. 기본 0 |
 
 > ⛓ 승강 규칙(promote/demote의 count 또는 pct)은 **최소 1개 필수**. 같은 방향에 count·pct 둘 다 주면 **count 우선**.
