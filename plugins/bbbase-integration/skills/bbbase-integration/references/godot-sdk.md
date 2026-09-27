@@ -62,6 +62,7 @@ func _ready() -> void:
 | `await BBBase.auth.unlink(provider)` | 링크 해제(마지막 수단은 `CANNOT_UNLINK_LAST`) |
 | `await BBBase.auth.get_me()` | `res.data = {userId, isGuest, providers}` |
 | `await BBBase.records.save_mine(dict)` | 내 레코드 저장(entity_type="user") |
+| `await BBBase.records.save_mine_once(dict, op_id)` | 거래 ID 로 한 번만 적용(재화 증감 재시도 안전, 1.13.0+) |
 | `await BBBase.records.load_mine()` | 내 레코드(`res.data`, 없으면 null) |
 | `await BBBase.records.save(type, id, dict)` | 범용 엔티티(guild/season 등) 저장 |
 | `await BBBase.records.load(type, id)` | 범용 엔티티 조회(없으면 data=null) |

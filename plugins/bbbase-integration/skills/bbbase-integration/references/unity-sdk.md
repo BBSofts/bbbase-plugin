@@ -65,6 +65,7 @@ public class GameBackend : MonoBehaviour
 | `await BBBase.Auth.UnlinkAsync(provider)` | 링크 해제(마지막 수단은 `CANNOT_UNLINK_LAST`) |
 | `await BBBase.Auth.GetMeAsync()` | `AccountInfo{ UserId, IsGuest, Providers }` |
 | `await BBBase.Records.SaveMineAsync(obj)` | 내 레코드 저장(entityType="user") |
+| `await BBBase.Records.SaveMineOnceAsync(obj, opId)` | 거래 ID 로 한 번만 적용(재화 증감 재시도 안전, 1.14.0+) |
 | `await BBBase.Records.LoadMineAsync()` | 내 레코드(JObject, 없으면 null) |
 | `await BBBase.Records.LoadMineAsync<T>()` | 내 레코드를 타입 T 로(없으면 default) |
 | `await BBBase.Records.SaveAsync(type, id, obj)` | 범용 엔티티(guild/season 등) 저장 |

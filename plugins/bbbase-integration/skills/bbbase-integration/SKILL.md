@@ -13,6 +13,8 @@ description: >-
   "리텐션", "이탈율", "이탈구간", "퍼널", "retention", "D1 D7 리텐션",
   "필수 업데이트", "강제 업데이트", "최소 버전", "원격 설정", "리모트 컨피그", "remote config",
   "서버 설정값", "기능 플래그", "점검 공지",
+  "공유 카운터", "로비 현황판", "전체 시도 수", "커뮤니티 목표", "길드 기여도",
+  "다 같이 목표 달성", "오늘 몇 명이 클리어", "클리어율 표시", "전체 유저 통계 숫자",
   "웹게임", "브라우저 게임", "HTML5 게임", "WebGL 빌드", "Godot Web 빌드", "앱인토스 미니앱",
   "CORS", "Access-Control-Allow-Origin", "허용 origin", "브라우저에서 API 호출이 막힘",
   "BBBase", "백엔드 연동", "BBBase Unity SDK", "BBBase Godot SDK" 같은 요청이
@@ -180,10 +182,11 @@ curl -X PUT https://api.bbbase.io/projects/{PROJECT_ID}/entities/user/{userId}/r
 | 우편함 — 운영자 발송(보상 첨부) + 게임클라 수령(서버 원자 지급) | `references/mailbox.md` |
 | 로그인 실패 등 클라 이벤트 로그 수집(게임유저 토큰 없이 API 키만) | `references/logs.md` |
 | 필수 업데이트·원격 플래그·서버 튜닝값 등 프로젝트 공용 설정(Remote Config) | `references/config.md` |
+| 공유 카운터 — 로비 현황판, 커뮤니티 목표, 길드 기여도, 난이도별 시도/클리어 수 | `references/counters.md` |
 
 ## 4.5 운영자 셋업이 필요한 작업 — 먼저 개발자에게 물어라 (중요)
 
-리더보드 등록, 스키마 컬럼 정의, 유니크 제약 등록, 리셋잡 설정은 **운영자(JWT) 권한**이라
+리더보드 등록, 스키마 컬럼 정의, 유니크 제약 등록, 리셋잡 설정, 공유 카운터 등록은 **운영자(JWT) 권한**이라
 게임 코드만으로는 안 되고 **한 번의 셋업**이 필요하다. "랭킹 붙여줘", "닉네임 중복 막아줘"
 같은 요청이 오면 게임 코드(조회/저장)만 짜고 끝내지 말고, **그 셋업을 누가 할지 개발자에게
 먼저 물어라.** 두 가지 선택지를 제시한다:
@@ -205,13 +208,19 @@ curl -X PUT https://api.bbbase.io/projects/{PROJECT_ID}/entities/user/{userId}/r
 | code | 의미 | 보통의 대처 |
 |---|---|---|
 | `UNKNOWN_COLUMN` | 스키마에 없는 컬럼을 저장 | 먼저 스키마에 컬럼 정의 |
+| `UNKNOWN_ENTITY_TYPE` | user 외 entityType 인데 그 scope 의 스키마가 하나도 없음 | 먼저 그 scope 로 스키마 정의(오타 확인) |
 | `DUPLICATE_VALUE` (409) | 유니크 제약 컬럼에 이미 쓰인 값 | 다른 값 요청(닉네임 중복 안내) |
+| `OPERATION_ID_CONFLICT` (409) | `record/once` 에 같은 거래 ID + 다른 data | 새 변경엔 새 ID 발급(`references/records.md`) |
 | `RECORD_NOT_FOUND` / `ENTITY_RECORD_NOT_FOUND` | 레코드 없음 | 신규 유저로 처리 |
 | `RATE_LIMIT_EXCEEDED` / `TOO_MANY_REQUESTS` | 호출 한도 초과 | 백오프 후 재시도 |
 | `LEADERBOARD_SCORE_NOT_FOUND` | 랭킹에 아직 점수 없음 | "기록 없음" 으로 표시 |
 | 401 / `UNAUTHORIZED` | 인증 헤더 잘못됨 | API키 vs 게임유저 토큰 vs 운영자 JWT 확인(섹션 1) |
 | 403 / `FORBIDDEN` | 남의 userId 로 레코드 접근(인증 켜진 경우) | 경로 userId 를 로그인 응답의 userId 로 교정(`references/game-auth.md`) |
 | `USER_BANNED` (403) | 운영자가 제재한 계정 | **재시도·재로그인 금지.** `details.expiresAt`(null=영구)·`details.reason` 으로 정지 안내 표시(`references/game-auth.md`) |
+| `COUNTER_NOT_FOUND` (404) | 그 이름의 공유 카운터 없음 | 운영자가 먼저 카운터 등록(이름 오타 확인, `references/counters.md`) |
+| `COUNTER_DUPLICATE` (409) | 같은 이름으로 카운터 생성(운영자) | 기존 정의를 `PATCH` 로 수정 |
+| `INVALID_COUNTER_DELTA` (400) | 카운터 `delta` 가 `maxDelta` 초과 | 증가분을 정책에 맞추거나 정책 조정(운영자) |
+| `COUNTER_LIMIT_EXCEEDED` (429) | 카운터 유저당 구간 상한 초과 | **재시도 금지**(그 구간 내내 실패). `details.perUserLimit`·`details.windowKey` 로 UI 안내만 |
 
 Rate limit: 게임 데이터 API는 **API 키당 분당 600회**, 인증 API는 IP당 분당 10회.
 요청 본문은 최대 256KB(게임 레코드는 보통 수 KB라 문제없음).

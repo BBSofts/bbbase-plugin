@@ -95,7 +95,8 @@ curl "https://api.bbbase.io/projects/{projectId}/leagues/{leagueId}/me/{userId}"
 curl "https://api.bbbase.io/projects/{projectId}/leagues/{leagueId}/ranks/{userId}?limit=30" -H "X-API-Key: {API_KEY}"
 
 # 승급 연출 본 뒤 결과 확인 처리(seen=true) — 다음 조회부터 안 뜸
-curl -X POST "https://api.bbbase.io/projects/{projectId}/leagues/{leagueId}/me/{userId}/ack" -H "X-API-Key: {API_KEY}"
+# 게임유저 토큰을 함께 보낸다 — user 리그는 {userId} 가 토큰 본인이어야 함(아니면 403). 토큰 없는 호출은 하위호환으로만 허용(추후 필수)
+curl -X POST "https://api.bbbase.io/projects/{projectId}/leagues/{leagueId}/me/{userId}/ack" -H "X-API-Key: {API_KEY}" -H "Authorization: Bearer {accessToken}"
 ```
 ```json
 { "success": true, "data": {

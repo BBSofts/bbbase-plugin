@@ -77,6 +77,26 @@ bbbase schema:delete {projectId} attempts --scope group
 
 그래서 게임 클라이언트는 비교 로직 없이 그냥 PUT 한다 — 서버가 막아준다.
 
+## 재시도 중복 방지 — `PUT .../record/once` (거래 ID)
+
+`INCREMENT` 는 동시 저장엔 안전하지만, **응답이 유실된 뒤 일반 PUT 을 재시도하면 같은 증감분이
+다시 더해진다**. 코인 지급/차감처럼 한 번만 적용돼야 하는 변경은 거래 ID 를 붙여 `record/once` 로 보낸다.
+
+```bash
+curl -X PUT {BASE_URL}/projects/{projectId}/entities/user/{userId}/record/once \
+  -H "X-API-Key: {API_KEY}" -H "Authorization: Bearer {accessToken}" \
+  -H "Content-Type: application/json" \
+  -d '{ "operationId": "<uuid>", "data": { "coin": 3 } }'
+```
+
+- 같은 `operationId` + 같은 `data` 재전송 → 다시 적용하지 않고 **첫 결과**를 그대로 반환.
+- 같은 `operationId` + 다른 `data` → `409 OPERATION_ID_CONFLICT`.
+- 실패한 요청(예: `UNKNOWN_COLUMN`)은 ID 를 소모하지 않는다 — 고친 뒤 같은 ID 로 재시도 가능.
+- **ID 는 보내기 전에 생성해 영구 저장**(재시작 후에도 같은 ID 로 재시도)하고, 성공하면 지운다.
+- ID 는 `(entityType, entityId)` 단위로 유일하면 되며 1~128자. 보관 기간은 30일(서버 설정
+  `RECORD_OPERATION_RETENTION_DAYS`) — 그보다 오래된 거래를 재시도하면 새 거래로 적용된다.
+- SDK: Unity `Records.SaveMineOnceAsync(obj, opId)` / Godot `records.save_mine_once(dict, op_id)`.
+
 ## 레코드 엔드포인트는 하나 — entityType 으로 구분 (API 키 필요)
 
 모든 레코드는 **단일 범용 엔드포인트** `/projects/{projectId}/entities/{entityType}/{entityId}/record`
