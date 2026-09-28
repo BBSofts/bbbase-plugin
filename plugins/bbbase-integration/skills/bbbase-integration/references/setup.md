@@ -111,6 +111,6 @@ oclif 기반 `bbbase` CLI 도 있다(로그인 토큰을 `~/.bbbase/credentials.
 
 ```bash
 bbbase tenant:create --email admin@mygame.com --name "My Game Studio" --password secret1234
-bbbase auth:login   --email admin@mygame.com --password secret1234
+bbbase auth:login   # 브라우저가 열리면 대시보드에서 승인(비밀번호 입력 불필요). CI 는 BBBASE_EMAIL/BBBASE_PASSWORD
 bbbase project:create --name "My Puzzle Game"
 ```
