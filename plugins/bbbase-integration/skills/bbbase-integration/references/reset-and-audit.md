@@ -10,8 +10,8 @@ BASE_URL : https://api.bbbase.io
 
 ## 리셋 잡 — 특정 컬럼을 매일/매주/매달 기본값으로 초기화
 
-"일일 베스트타임", "오늘 시도 횟수" 처럼 주기적으로 리셋되는 값에 쓴다. 서버가 UTC
-00:00 에 BullMQ 로 일괄 처리하며, 서버 재시작에도 등록된 잡이 자동 복구된다.
+"일일 베스트타임", "오늘 시도 횟수" 처럼 주기적으로 리셋되는 값에 쓴다. 서버가 잡별
+`timezone` 의 00:00 에 BullMQ 로 일괄 처리하며, 서버 재시작에도 등록된 잡이 자동 복구된다.
 
 ### 등록 — `POST /projects/{projectId}/reset-jobs`
 
@@ -20,6 +20,7 @@ BASE_URL : https://api.bbbase.io
 | schemaId | string | ✅ | 초기화할 컬럼의 schema id |
 | frequency | `DAILY`\|`WEEKLY`\|`MONTHLY` | ✅ | 주기 |
 | resetTo | any | ✅ | 초기화 값 |
+| timezone | string | | 00:00 을 해석할 IANA 타임존(기본 `Asia/Seoul`). `"KST"`·`"UTC+9"` 는 거부 |
 
 ```bash
 # daily_best_time 을 매일 자정 999999 로 리셋
@@ -29,8 +30,8 @@ curl -X POST https://api.bbbase.io/projects/{projectId}/reset-jobs \
 ```
 
 > schemaId 는 `GET /projects/{projectId}/schemas` 에서 해당 컬럼의 `id` 를 찾아 쓴다.
-> 모든 리셋은 UTC 00:00 실행(타임존 지원은 보류). 대량 리셋은 per-record 감사로그를
-> 남기지 않는다(테이블 폭증 방지) — `ResetJob.lastRunAt` 이 실행 이력.
+> 해외 서비스는 주 시장 타임존을, 여러 지역 동시 서비스면 `UTC` 를 지정한다. 대량 리셋은
+> per-record 감사로그를 남기지 않는다(테이블 폭증 방지) — `ResetJob.lastRunAt` 이 실행 이력.
 
 ### 목록 / 수정 / 삭제
 
@@ -40,6 +41,17 @@ GET    /projects/{projectId}/reset-jobs/{jobId}
 PATCH  /projects/{projectId}/reset-jobs/{jobId}
 DELETE /projects/{projectId}/reset-jobs/{jobId}
 ```
+
+### 지금 실행 (테스트용) — `POST /projects/{projectId}/reset-jobs/{jobId}/run`
+
+자정을 기다리지 않고 리셋을 1회 돌린다. 202 로 바로 돌아오며(`{ resetJobId, queueJobId, previousRunAt }`),
+자정 스케줄과 같은 경로(큐·재시도·같은 프로젝트의 리그 승강과 직렬화)로 처리된다.
+`GET .../reset-jobs/{jobId}` 의 `lastRunAt` 이 `previousRunAt` 보다 새로워지면 끝난 것이다.
+CLI: `bbbase reset:run <projectId> <jobId> --yes`(완료까지 대기), 대시보드: 리셋잡 행의 ▶ 버튼.
+
+> ⚠️ 실제 유저 데이터를 즉시 초기화한다. 사용자가 명시적으로 요청했을 때만 호출하고, 운영 중인
+> 프로젝트라면 무엇이 초기화되는지 먼저 확인받아라. 리그 승강도 같은 방식으로
+> `POST /projects/{projectId}/leagues/{leagueId}/run`(동기, `{ promoted, demoted }`) 이 있다.
 
 ### 전형적 흐름 — "일일 베스트타임" 만들기
 1. `POST /schemas` 로 `daily_best_time` 생성(`type: NUMBER, compareMode: MIN, defaultValue: 999999`) → schemaId
