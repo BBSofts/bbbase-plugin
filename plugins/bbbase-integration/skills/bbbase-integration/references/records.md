@@ -172,7 +172,18 @@ curl -X PUT https://api.bbbase.io/projects/{projectId}/entities/guild/550e8400-e
 GET /projects/{projectId}/entities/{entityType}/records?limit=&cursor=&entityId=
 ```
 
+## 서버 전용 컬럼
+스키마의 `writePolicy` 가 `SERVER` 인 컬럼(재화·리그 티어 등 조작되면 안 되는 값)은 게임 클라가 쓸 수 없다.
+- PUT(`record`, `record/once`) data 에 **넣기만 해도**(서버 값과 같아도) 요청 전체가 `403 SERVER_ONLY_COLUMN`,
+  `details.columns` 에 걸린 컬럼 목록. 함께 보낸 다른 컬럼도 저장되지 않고 거래 ID 도 소모되지 않는다.
+- 클라는 GET 으로 읽기만 하고, 저장 data 는 바꾼 컬럼만 담는다(레코드 전체를 되돌려 보내지 말 것).
+- 값을 바꾸는 쪽: 운영자 저장(대시보드/CLI), 우편 보상(`mailbox.md` — INCREMENT 컬럼), 리그 승강, 리셋잡.
+- 리그의 티어·코호트·결과 컬럼은 리그 생성 시 자동으로 SERVER. 기존 레코드에 비어 있으면 다음 저장 때 서버가 기본값을 채운다.
+- 운영자 설정: `bbbase schema:create ... --write-policy SERVER`, 기존 컬럼은 `bbbase schema:update <pid> <col> --write-policy SERVER`
+  (먼저 최근 30일 클라 쓰기를 점검해 있으면 중단 — API `GET /projects/{pid}/schemas/{id}/client-writes?days=30`).
+
 ## 에러
 - 스키마에 없는 컬럼 PUT → `UNKNOWN_COLUMN`
+- 서버 전용 컬럼 PUT → `SERVER_ONLY_COLUMN` (403)
 - 레코드 없음 → `RECORD_NOT_FOUND` / `ENTITY_RECORD_NOT_FOUND`
 - 유니크 제약 위반 → `DUPLICATE_VALUE` (409, `unique-constraints.md` 참고)

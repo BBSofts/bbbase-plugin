@@ -115,7 +115,7 @@ curl -X PUT https://api.bbbase.io/projects/{projectId}/entities/user/{userId}/re
   -H "Content-Type: application/json" -H "X-API-Key: {API_KEY}" -H "Authorization: Bearer {gameUserToken}" \
   -d '{ "data": { "league_points": 250 } }'
 ```
-- `compareMode` 그대로 적용. **`league_tier`/`league_cohort` 는 서버가 관리** — 게임 클라가 직접 쓰지 말 것(승강 잡이 덮어쓴다).
+- `compareMode` 그대로 적용. **`league_tier`/`league_cohort`/`league_last_result` 는 서버 전용 컬럼** — 리그 생성 시 자동으로 `writePolicy=SERVER` 가 되어, 게임 클라가 저장 data 에 넣으면 요청 전체가 `403 SERVER_ONLY_COLUMN`. 점수만 저장할 것.
 
 ## 전형적 흐름
 1. (1회, JWT) `league_points`·`league_tier` 스키마 → `POST /leagues` 등록 → leagueId 저장

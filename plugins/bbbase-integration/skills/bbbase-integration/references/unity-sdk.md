@@ -80,7 +80,7 @@ public class GameBackend : MonoBehaviour
 | `await BBBase.Leagues.GetRanksAsync(leagueId, entityId, n)` | 특정 유저의 그룹 내 Top-N |
 | `await BBBase.Leagues.AcknowledgeResultAsync(leagueId)` | 승급 연출 본 뒤 결과 확인(seen=true) |
 
-> 리그: 점수는 평소처럼 `Records.SaveMineAsync(new { league_points = ... })` 로 저장(자동 반영). `league_tier`/`league_cohort` 는 서버 관리라 직접 쓰지 말 것. 정의·승강 규칙은 운영자가 미리 등록.
+> 리그: 점수는 평소처럼 `Records.SaveMineAsync(new { league_points = ... })` 로 저장(자동 반영). `league_tier`/`league_cohort` 는 서버 전용 컬럼이라 저장에 넣으면 `SERVER_ONLY_COLUMN`(403). 정의·승강 규칙은 운영자가 미리 등록.
 > **승급 연출**: `GetMyStatusAsync().LastResult`(`LeagueResult`, 없으면 null)가 지난 사이클 결과. `LastResult.IsPromotion && !LastResult.Seen` 이면 승급 애니메이션 → `AcknowledgeResultAsync(leagueId)` 로 확인. `PrevRank` 로 순위 변화도 연출.
 
 규칙은 REST 와 **100% 동일**하다 — 헤더 2종, envelope, compareMode 병합(`MIN`/`MAX`/

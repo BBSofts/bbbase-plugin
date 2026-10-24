@@ -213,6 +213,7 @@ curl -X PUT https://api.bbbase.io/projects/{PROJECT_ID}/entities/user/{userId}/r
 | `UNKNOWN_ENTITY_TYPE` | user 외 entityType 인데 그 scope 의 스키마가 하나도 없음 | 먼저 그 scope 로 스키마 정의(오타 확인) |
 | `DUPLICATE_VALUE` (409) | 유니크 제약 컬럼에 이미 쓰인 값 | 다른 값 요청(닉네임 중복 안내) |
 | `OPERATION_ID_CONFLICT` (409) | `record/once` 에 같은 거래 ID + 다른 data | 새 변경엔 새 ID 발급(`references/records.md`) |
+| `SERVER_ONLY_COLUMN` (403) | 서버 전용 컬럼(재화·리그 티어 등)을 클라가 저장 | `details.columns` 를 저장 data 에서 뺀다(`references/records.md`) |
 | `RECORD_NOT_FOUND` / `ENTITY_RECORD_NOT_FOUND` | 레코드 없음 | 신규 유저로 처리 |
 | `RATE_LIMIT_EXCEEDED` / `TOO_MANY_REQUESTS` | 호출 한도 초과 | 백오프 후 재시도 |
 | `LEADERBOARD_SCORE_NOT_FOUND` | 랭킹에 아직 점수 없음 | "기록 없음" 으로 표시 |
