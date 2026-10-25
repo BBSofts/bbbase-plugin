@@ -73,6 +73,7 @@ BBBase는 게임 개발자용 자체 호스팅 BaaS다. 게임은 **REST 호출*
 | **API 키** | `X-API-Key: {API_KEY}` | 게임 데이터(레코드, 엔티티, **랭킹 조회**) | 게임 클라이언트 |
 | **게임유저 토큰** | `Authorization: Bearer {accessToken}` | 레코드 호출 시 API 키와 **함께** — 본인 신원 증명 | 게임 클라이언트(플레이어) |
 | **운영자 JWT** | `Authorization: Bearer {accessToken}` | 관리(스키마, 리더보드/유니크 **정의**, 리셋잡, 감사로그, 프로젝트, 키 관리) | 운영자/콘솔/CLI |
+| **비밀 키** | `X-API-Key: {SECRET_KEY}` (`bbbase_sk_…`) | 서버 API `/projects/:pid/server/...`(재화 지급·차감, 서버 전용 컬럼, 우편, 제재) | **고객 서버만** — `references/server-api.md` |
 
 핵심 경계선:
 - **게임 런타임에서 매번 호출**하는 건 거의 다 **API 키**다 (점수 저장, 기록 조회, 랭킹 보기).
@@ -183,6 +184,7 @@ curl -X PUT https://api.bbbase.io/projects/{PROJECT_ID}/entities/user/{userId}/r
 | 로그인 실패 등 클라 이벤트 로그 수집(게임유저 토큰 없이 API 키만) | `references/logs.md` |
 | 필수 업데이트·원격 플래그·서버 튜닝값 등 프로젝트 공용 설정(Remote Config) | `references/config.md` |
 | 공유 카운터 — 로비 현황판, 커뮤니티 목표, 길드 기여도, 난이도별 시도/클리어 수 | `references/counters.md` |
+| **고객 서버**에서 재화 지급·차감(결제 검증 뒤, 매치 정산), 서버 전용 컬럼 쓰기, 우편·제재 — 비밀 키 | `references/server-api.md` |
 
 ## 4.5 운영자 셋업이 필요한 작업 — 먼저 개발자에게 물어라 (중요)
 
@@ -214,6 +216,8 @@ curl -X PUT https://api.bbbase.io/projects/{PROJECT_ID}/entities/user/{userId}/r
 | `DUPLICATE_VALUE` (409) | 유니크 제약 컬럼에 이미 쓰인 값 | 다른 값 요청(닉네임 중복 안내) |
 | `OPERATION_ID_CONFLICT` (409) | `record/once` 에 같은 거래 ID + 다른 data | 새 변경엔 새 ID 발급(`references/records.md`) |
 | `SERVER_ONLY_COLUMN` (403) | 서버 전용 컬럼(재화·리그 티어 등)을 클라가 저장 | `details.columns` 를 저장 data 에서 뺀다(`references/records.md`) |
+| `SECRET_KEY_NOT_ALLOWED` / `SECRET_KEY_REQUIRED` (401) | 비밀 키를 게임 클라에 / 공개 키를 서버 API 에 씀 | 키 종류를 바로잡는다(`references/server-api.md`) |
+| `INSUFFICIENT_BALANCE` (409) | 서버 지급의 차감으로 값이 0 미만 | 잔액 부족 처리 — 아무것도 반영되지 않음 |
 | `RECORD_NOT_FOUND` / `ENTITY_RECORD_NOT_FOUND` | 레코드 없음 | 신규 유저로 처리 |
 | `RATE_LIMIT_EXCEEDED` / `TOO_MANY_REQUESTS` | 호출 한도 초과 | 백오프 후 재시도 |
 | `LEADERBOARD_SCORE_NOT_FOUND` | 랭킹에 아직 점수 없음 | "기록 없음" 으로 표시 |
